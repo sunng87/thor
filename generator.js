@@ -8,7 +8,7 @@
  * @param {Function} fn The callback function for the data.
  * @public
  */
-exports.utf8 = function utf(size, fn) {
+exports.utf8 = function utf(size, stage, fn) {
   var key = 'utf8::'+ size
     , cached = cache[key];
 
@@ -27,7 +27,7 @@ exports.utf8 = function utf(size, fn) {
  * @param {Function} fn The callback function for the data.
  * @public
  */
-exports.binary = function binary(size, fn) {
+exports.binary = function binary(size, stage, fn) {
   var key = 'binary::'+ size
     , cached = cache[key];
 

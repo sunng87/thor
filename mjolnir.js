@@ -24,7 +24,7 @@ process.on('message', function message(task) {
   //
   if ('write' in task) {
     Object.keys(connections).forEach(function write(id) {
-      write(connections[id], task, id);
+      write(connections[id], task, id, 'send');
     });
   }
 
@@ -46,7 +46,7 @@ process.on('message', function message(task) {
 
   socket.on('open', function open() {
     process.send({ type: 'open', duration: Date.now() - now, id: task.id, concurrent: concurrent });
-    write(socket, task, task.id);
+    write(socket, task, task.id, 'open');
 
     // As the `close` event is fired after the internal `_socket` is cleaned up
     // we need to do some hacky shit in order to tack the bytes send.
@@ -60,7 +60,7 @@ process.on('message', function message(task) {
 
     // Only write as long as we are allowed to send messages
     if (--task.messages) {
-      write(socket, task, task.id);
+      write(socket, task, task.id, 'message');
     } else {
       socket.close();
     }
@@ -99,8 +99,8 @@ process.on('message', function message(task) {
  * @param {Function} fn The callback
  * @api private
  */
-function write(socket, task, id, fn) {
-  session[binary ? 'binary' : 'utf8'](task.size, function message(err, data) {
+function write(socket, task, id, stage, fn) {
+  session[binary ? 'binary' : 'utf8'](task.size, stage, function message(err, data) {
     var start = socket.last = Date.now();
 
     socket.send(data, {
