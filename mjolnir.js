@@ -14,7 +14,8 @@ var session = require(process.argv[2]);
 //
 var masked = process.argv[4] === 'true'
   , binary = process.argv[5] === 'true'
-  , protocol = +process.argv[3] || 13;
+, protocol = +process.argv[3] || 13
+, localaddrs = process.argv[6];
 
 process.on('message', function message(task) {
   var now = Date.now();
@@ -40,9 +41,16 @@ process.on('message', function message(task) {
   // End of the line, we are gonna start generating new connections.
   if (!task.url) return;
 
-  var socket = new Socket(task.url, {
+  var options = {
     protocolVersion: protocol
-  });
+  };
+
+  if (localaddrs.length > 0) {
+    var la = localaddrs.split(",")
+    options['localAddress'] = la[Math.floor(Math.random() * la.length)];
+  }
+
+  var socket = new Socket(task.url, options);
 
   socket.on('open', function open() {
     process.send({ type: 'open', duration: Date.now() - now, id: task.id, concurrent: concurrent });

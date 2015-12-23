@@ -22,6 +22,7 @@ cli.usage('[options] ws://localhost')
    .option('-G, --generator <file>', 'custom message generators')
    .option('-M, --masked', 'send the messaged with a mask')
    .option('-b, --binary', 'send binary messages instead of utf-8')
+   .option('-a, --localaddrs <localadresses>', 'comma-separated local addresses available to bind')
    .version(require('../package.json').version)
    .parse(process.argv);
 
@@ -35,6 +36,7 @@ if (!cli.args.length) return [
 ].forEach(function stderr(line) {
   console.error(line);
 });
+
 
 //
 // By Odin's beard, unleash thunder!
@@ -56,7 +58,8 @@ cluster.setupMaster({
       : path.resolve(__dirname, '../generator.js'),
       cli.protocol,
       !!cli.masked,
-      !!cli.binary
+      !!cli.binary,
+      cli.localaddrs || ''
     ]
 });
 
